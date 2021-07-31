@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src="moment.min.js"></script>
+	<script type="text/javascript" src="lib/noty.js"></script>
+	<link rel="stylesheet" type="text/css" href="lib/noty.css">
+    <link rel="manifest" href="manifest.json">
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyDJMwbVnJEiTWyCsBD69pSwCxY7Rh4Mbco",
+    authDomain: "covid19-gabon.firebaseapp.com",
+    databaseURL: "https://covid19-gabon.firebaseio.com",
+    projectId: "covid19-gabon",
+    storageBucket: "covid19-gabon.appspot.com",
+    messagingSenderId: "243635860463",
+    appId: "1:243635860463:web:0abb3175e07d90ca49bc1a"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
+</head>
+<body>
+
+
+
+	<script>
+	                        
+		navigator.serviceWorker.register('service-worker.js').then(
+  function(serviceWorkerRegistration) {
+    serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: 'BAThb7PIBskq8_3XLOMkYmnG-qyzAo6SFt-Q4uzcdDaseaOfEUejZDYRQvMgcXcJ4jjpnZinG7zWylE1rgKHbjo'}).then(
+      function(pushSubscription) {
+        console.log('subscrber pushSubscript', pushSubscription);
+        //var notification = new Notification("Salut toi !");
+        // The push subscription details needed by the application
+        // server are now available, and can be sent to it using,
+        // for example, an XMLHttpRequest.
+      }, function(error) {
+        // During development it often helps to log errors to the
+        // console. In a production environment it might make sense to
+        // also report information about errors back to the
+        // application server.
+        console.log(error);
+      }
+    );
+  });
+                    
+var raw = "";
+var requestOptions = {
+method: 'GET',
+redirect: 'follow'
+};
+var api1 = "https://pomber.github.io/covid19/timeseries.json"
+var api2 = "https://corona-virus-stats.herokuapp.com/api/v1/cases/countries-search?search=Gabon"
+var api3 = "https://corona-virus-stats.herokuapp.com/api/v1/cases/general-stats"
+var api4 = "https://coronavirus-19-api.herokuapp.com/countries/gabon"
+fetch(api4, requestOptions)
+.then(response => response.json())
+.then(res => {
+ console.log('bilan ', res)
+        var newcase = res.todayCases
+        var newdeath = res.todayDeaths
+        // fetch('http://mitashi-otha.com/update.php', {method: "POST", body: JSON.stringify({dates: moment().format('DD-MM-Y'), cas: res.todayCases})}).then(e=> e.json()).then(e=> {
+        //     console.log('mise à jour ', e)
+        // })
+});
+	</script>
+</body>
+</html>

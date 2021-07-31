@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+  <script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="moment.min.js"></script>
+	<script type="text/javascript" src="lib/noty.js"></script>
+	<link rel="stylesheet" type="text/css" href="lib/noty.css">
+    <link rel="manifest" href="manifest.json">
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-messaging.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyDJMwbVnJEiTWyCsBD69pSwCxY7Rh4Mbco",
+    authDomain: "covid19-gabon.firebaseapp.com",
+    databaseURL: "https://covid19-gabon.firebaseio.com",
+    projectId: "covid19-gabon",
+    storageBucket: "covid19-gabon.appspot.com",
+    messagingSenderId: "243635860463",
+    appId: "1:243635860463:web:0abb3175e07d90ca49bc1a"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  
+</script>
+</head>
+<body>
+    <button class="js-push-button">Start</button>
+  <script>
+      'use strict';
+$(function() {
+    var isPushEnabled = false;
+  const appPublicKey = 'BAThb7PIBskq8_3XLOMkYmnG-qyzAo6SFt-Q4uzcdDaseaOfEUejZDYRQvMgcXcJ4jjpnZinG7zWylE1rgKHbjo';
+  const subscribeOptions = {
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(appPublicKey)
+  };
+
+  const messaging = firebase.messaging();
+
+  // from https://github.com/GoogleChromeLabs/web-push-codelab/blob/master/app/scripts/main.js#L31
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  function sendSubscriptionToServer(subscription) {
+    // TODO: Send the subscription.endpoint
+    // to your server and save it to send a
+    // push message at a later date
+    //
+    console.log(subscription);
+  }
+
+  function enabledPushUI() {
+    isPushEnabled = true;
+    var pushButton = document.querySelector('.js-push-button');
+    pushButton.disabled = false;
+    pushButton.textContent = 'Disable Push Messages';
+  }
+
+  function disabledPushUI() {
+    isPushEnabled = false;
+    var pushButton = document.querySelector('.js-push-button');
+    pushButton.disabled = false;
+    pushButton.textContent = 'Enable Push Messages';
+  }
+
+  // FCM CLIENT STUFF
+  messaging.onTokenRefresh(function() {
+    messaging.getToken().then(function(refreshedToken) {
+      console.log('Token refreshed.');
+        // Indicate that the new Instance ID token has not yet been sent to the
+        // app server.
+        sendSubscriptionToServer(refreshedToken);
+      }).catch(function(err) {
+        console.log('Unable to retrieve refreshed token ', err);
+      });
+    });
+    // [END refresh_token]
+
+  function fcmSubscribe() {
+    messaging.requestPermission().then(function() {
+      console.log('Notification permission grantedddd.');
+      // [START get_token]
+      // Get Instance ID token. Initially this makes a network call, once retrieved
+      // subsequent calls to getToken will return from cache.
+      messaging.getToken().then(function(currentToken) {
+        if (currentToken) {
+          sendSubscriptionToServer(currentToken);
+        } else {
+          // Show permission request.
+          console.log('No Instance ID token available. Request permission to generate one.');
+        }
+      }).catch(function(err) {
+        console.log('An error occurred while retrieving token. ', err);
+      });
+      // [END get_token]
+    }).catch(function(err) {
+      console.log('Unable to get permission to notify.', err);
+    });
+  }
+
+  function deleteToken() {
+    // Delete Instance ID token.
+    // [START delete_token]
+    messaging.getToken().then(function(currentToken) {
+      messaging.deleteToken(currentToken).then(function() {
+        console.log('fcm Token deleted.');
+        }).catch(function(err) {
+          console.log('Unable to delete token. ', err);
+      });
+        // [END delete_token]
+    }).catch(function(err) {
+        console.log('Error retrieving Instance ID token. ', err);
+    });
+  }
+  // END FCM CLIENT STUFF
+
+  function unsubscribe() {
+    var pushButton = document.querySelector('.js-push-button');
+    pushButton.disabled = true;
+
+    navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+      // To unsubscribe from push messaging, you need get the
+      // subcription object, which you can call unsubscribe() on.
+      serviceWorkerRegistration.pushManager.getSubscription().then(
+        function(pushSubscription) {
+          // Check we have a subscription to unsubscribe
+          if (!pushSubscription) {
+            // No subscription object, so set the state
+            // to allow the user to subscribe to push
+            disabledPushUI();
+            return;
+          }
+
+          // TODO: Make a request to your server to remove
+          // the users data from your data store so you
+          // don't attempt to send them push messages anymore
+
+          // We have a subcription, so call unsubscribe on it
+          pushSubscription.unsubscribe().then(function() {
+            disabledPushUI();
+            deleteToken();
+          }).catch(function(e) {
+            // We failed to unsubscribe, this can lead to
+            // an unusual state, so may be best to remove
+            // the subscription id from your data store and
+            // inform the user that you disabled push
+
+            console.log('Unsubscription error: ', e);
+          });
+        }).catch(function(e) {
+          console.log('Error thrown while unsubscribing from push messaging', e);
+        });
+      });
+  }
+
+  function subscribe() {
+    // Disable the button so it can't be changed while
+    // we process the permission request
+    var pushButton = document.querySelector('.js-push-button');
+    pushButton.disabled = true;
+    
+    navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+      serviceWorkerRegistration.pushManager.subscribe(subscribeOptions)
+      .then(function(subscription) {
+          // The subscription was successful
+          sendSubscriptionToServer(subscription);
+          enabledPushUI();
+          fcmSubscribe();
+        })
+      .catch(function(e) {
+        if (Notification.permission === 'denied') {
+            // The user denied the notification permission which
+            // means we failed to subscribe and the user will need
+            // to manually change the notification permission to
+            // subscribe to push messages
+            console.log('Permission for Notifications was denied');
+          } else {
+            // A problem occurred with the subscription
+            console.log('Unable to subscribe to push.', e);
+            disabledPushUI();
+          }
+        });
+    });
+  }
+
+  // Once the service worker is registered set the initial state
+  function initialiseState() {
+    // Are Notifications supported in the service worker?
+    if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
+      console.log('Notifications aren\'t supported.');
+      return;
+    }
+
+    // Check the current Notification permission.
+    // If its denied, it's a permanent block until the
+    // user changes the permission
+    if (Notification.permission === 'denied') {
+      console.log('The user has blocked notifications.');
+      return;
+    }
+
+    // Check if push messaging is supported
+    if (!('PushManager' in window)) {
+      console.log('Push messaging isn\'t supported.');
+      return;
+    }
+
+    messaging.usePublicVapidKey(appPublicKey);
+    // We need the service worker registration to check for a subscription
+    navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+      // use our sw and not fcm default
+      messaging.useServiceWorker(serviceWorkerRegistration);
+      // Do we already have a push message subscription?
+      serviceWorkerRegistration.pushManager.getSubscription()
+      .then(function(subscription) {
+          // Enable any UI which subscribes / unsubscribes from
+          // push messages.
+          var pushButton = document.querySelector('.js-push-button');
+          pushButton.disabled = false;
+
+          if (!subscription) {
+            // We aren’t subscribed to push, so set UI
+            // to allow the user to enable push
+            disabledPushUI();
+            return;
+          }
+
+          // Keep your server in sync with the latest subscription
+          sendSubscriptionToServer(subscription);
+          fcmSubscribe();
+
+          // Set your UI to show they have subscribed for
+          // push messages
+          enabledPushUI();
+        })
+      .catch(function(err) {
+        console.log('Error during getSubscription()', err);
+      });
+    });
+  }
+
+  window.addEventListener('load', function() {
+    var pushButton = document.querySelector('.js-push-button');
+    pushButton.addEventListener('click', function() {
+      if (isPushEnabled) {
+        unsubscribe();
+      } else {
+        subscribe();
+      }
+    });
+
+    // Check that service workers are supported, if so, progressively
+    // enhance and add push messaging support, otherwise continue without it.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+      .then(initialiseState);
+    } else {
+      console.log('Service workers aren\'t supported in this browser.');
+    }
+  });
+
+})
+
+  </script>
+</body>

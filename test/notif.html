@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script src="https://maps.google.com/maps/api/js?sensor=false&libraries=geometry&v=3.22&key=AIzaSyBT48OIWbmMipZUx6LnK7bHTXqK2uofyFI">
+    </script>
+	<style type="text/css">
+		.col-parent {
+			width: 300px;
+			background: gray
+			margin: 3ex;
+			display: flex;
+			position: relative;
+		}
+		.col-parent div {
+			width: 100px;
+			padding: 5px;
+			cursor: pointer
+
+		} 
+		.col-parent div:hover {
+			background: darkgray
+		}
+		.col-swip {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			border: 1px solid red;
+		    width: 50px;
+		    transition: all .3s
+		}
+	</style>
+</head>
+<body>
+		
+	<div>
+		<button onclick="sendNotification()">click</button>
+  <!-- <p>Taken from wikpedia</p>
+  <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA
+    AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
+        9TXL0Y4OHwAAAABJRU5ErkJggg==" alt="Red dot" /> -->
+</div>
+	<!-- <div id="pagepiling">
+		<div class="section">
+			Some section 1 
+			<button>next</button>
+		</div>
+		<div class="section">Some section 2</div>
+		<div class="section">Some section 3</div>
+		<div class="section">Some section 4</div>
+	</div> -->
+	<!-- <button>ok</button> -->
+		<!-- <div class="col-parent">
+			<div id="0">
+				menu1
+			</div>
+			<div id="1">
+				menu2
+			</div>
+			<div id="2">
+				menu3
+			</div>
+			<span class="col-swip"></span>
+		</div> -->
+		<script>
+	$(function() {
+		$('button').on('click', e=> {
+			$.ajax({
+				method: 'POST',
+				url: 'https://kazimo.ga/cashapp/test.php',
+				data: {text: 'derrière pédiatrie é/*-)='}
+			})
+		})
+	})
+
+		function sendNotification() {
+			var token = "c9mvI4W8SKg:APA91bFVzVfNvU27ffpDtz5Bkqc3017pDwdu8CNTh7gd_aFMaR7O_nlFHESFwSfPS02lrorSpzY7ougXa3tukQVCSyeeTXOXH_FF5n7NzVD6ckZUwsYZOVFpzo4u_DW3t6uH_RRuFD5h"
+			var token2 = "etOvw8owJes:APA91bFA-TsnfS7Z3F19on0HkdZKOTY2xx1BiXYqA_q18J8MAd0rPVkUnq-1maZhjHCqeSIvnA3ILNd3wcfiNNlLVHUaTZ5Tm7vzi-j3q9cwK0ZZQvDpZPPkUq6noEGX4YDZ700YTyd3"
+
+//endpoint: "https://fcm.googleapis.com/fcm/send/eGyCx69Y76U:APA91bFYGGjLdKtbNzl80o5MmYu5Pk0M5WzMNf2OKRqQKHDKaa9XuhKqQ2Ta6mxkCvKq6nNIAL28FLPhzPC6AL1yfO4ltLpB_YP_IW-PgUEpnat6MOT3aK61P7Tp9QZzK04fpK0DTGV4"
+
+      		let key="AAAAOLnUM-8:APA91bGeCmAsEF_OcW587ohiTgBpRlwZ5chzGXElxCC63TAx5GEg8aRZRyWajiT2fJuRSS1gUv1itQHnINBRgEHUjxxBNDH6D88zKT9CqcKET3HWNwjPav5EIJKPv2xR9b42ZRqr4GN0";
+      $.ajax({        
+        type : 'POST',
+        url : "https://fcm.googleapis.com/fcm/send",
+        headers : {
+            Authorization : 'key=' + key
+        },
+        contentType : 'application/json',
+        dataType: 'json',
+        data: JSON.stringify( {'registration_ids': [token2], notification: {title:'Nouvelle version', icon: 'https://covid19gabon.mitashi-otha.com/assets/virus.png', body: "je suis le body", click_action: "https://covid19gabon.mitashi-otha.com"}, data:{"score":"3x1"} }  ),
+        success : function(response) {
+            console.log(response);
+        },
+        error : function(xhr, status, error) {
+            console.log(xhr.error);                   
+        }
+    });
+  }
+      function displayLocation(latitude,longitude){
+        var request = new XMLHttpRequest();
+
+        var method = 'GET';
+        var url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='+latitude+','+longitude+'&sensor=true&v=3.22&key=AIzaSyBT48OIWbmMipZUx6LnK7bHTXqK2uofyFI';
+        var async = true;
+
+        request.open(method, url, async);
+        request.onreadystatechange = function(){
+          if(request.readyState == 4 && request.status == 200){
+            var data = JSON.parse(request.responseText);
+            var address = data.results[0];
+            console.log(data);
+          }
+        };
+        request.send();
+      };
+
+      var successCallback = function(position){
+        var x = position.coords.latitude;
+        var y = position.coords.longitude;
+        displayLocation(x,y);
+      };
+
+      var errorCallback = function(error){
+        var errorMessage = 'Unknown error';
+        switch(error.code) {
+          case 1:
+            errorMessage = 'Permission denied';
+            break;
+          case 2:
+            errorMessage = 'Position unavailable';
+            break;
+          case 3:
+            errorMessage = 'Timeout';
+            break;
+        }
+        console.log(errorMessage);
+      };
+
+      var options = {
+        enableHighAccuracy: true,
+        timeout: 1000,
+        maximumAge: 0
+      };
+
+      displayLocation(48.6431698, 2.4188854)
+
+
+  		$(document).ready(function(){
+  				var srcLocation = new google.maps.LatLng(20.075984, 72.877656);
+        		var dstLocation = new google.maps.LatLng(19.075984, 72.877656);
+        		var distance = google.maps.geometry.spherical.computeDistanceBetween(srcLocation, dstLocation)
+        		console.log('distance ', distance/1000); // Distance in Kms.
+  				$('button').on('click', function(){
+  							
+					var xhr = new XMLHttpRequest();
+					var numero = '605776944'
+					var xhr = new XMLHttpRequest();
+					xhr.open("GET", "https://platform.clickatell.com/messages/http/send?apiKey=wZVF4h99RBKJM1CeNLDBWQ==&to=33605776944&content=Test+message+text", true);
+					xhr.onreadystatechange = function(){
+					    if (xhr.readyState == 4 && xhr.status == 200) {
+					        console.log('success');
+					    }
+					};
+				//	xhr.send();	
+//frontend coding
+  				})
+  		
+   	
+  });
+  </script>
+</body>
+</html>

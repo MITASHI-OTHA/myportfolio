@@ -1,0 +1,8 @@
+{
+    "name": "NOTY",
+    "short_name": "NOTY",
+    "start_url": "https://mitashi-otha.com/test/worker.html",
+    "display": "standalone",
+    "gcm_user_visible_only": true,
+    "gcm_sender_id": "103953800507"
+}
